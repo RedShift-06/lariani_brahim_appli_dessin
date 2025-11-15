@@ -546,10 +546,81 @@
           ctx.beginPath();
         }
 
+        function setActiveToolButton(toolName) {
+          brushButton.classList.remove("active");
+          eraserButton.classList.remove("active");
+          fillButton.classList.remove("active");
+
+          sizeRangePopup.classList.remove("open");
+          sizeButton.classList.remove("active");
+          opacityRangePopup.classList.remove("open");
+          opacityButton.classList.remove("active");
+
+          if (toolName === "brush") brushButton.classList.add("active");
+          else if (toolName === "eraser") eraserButton.classList.add("active");
+          else if (toolName === "fill") fillButton.classList.add("active");
+
+          currentTool = toolName;
+
+          if (currentTool === "eraser") {
+            ctx.strokeStyle = "white";
+            ctx.globalAlpha = 1.0;
+          } else {
+            ctx.strokeStyle = currentColor;
+            ctx.globalAlpha = currentAlpha;
+          }
+        }
+
+        function toggleRangePopup(popupElement, buttonElement) {
+          [sizeRangePopup, opacityRangePopup].forEach((popup) => {
+            if (popup !== popupElement) {
+              popup.classList.remove("open");
+              document
+                .getElementById(popup.id.replace("RangePopup", "Button"))
+                .classList.remove("active");
+            }
+          });
+
+          popupElement.classList.toggle("open");
+          buttonElement.classList.toggle("active");
+        }
+
+        // écouteurs
         canvas.addEventListener("mousedown", startDrawing);
         canvas.addEventListener("mousemove", draw);
         canvas.addEventListener("mouseup", stopDrawing);
         canvas.addEventListener("mouseout", stopDrawing);
+
+        sizeButton.addEventListener("click", () => {
+          toggleRangePopup(sizeRangePopup, sizeButton);
+        });
+
+        opacityButton.addEventListener("click", () => {
+          toggleRangePopup(opacityRangePopup, opacityButton);
+        });
+
+        brushButton.addEventListener("click", () => {
+          setActiveToolButton("brush");
+        });
+        eraserButton.addEventListener("click", () => {
+          setActiveToolButton("eraser");
+        });
+        fillButton.addEventListener("click", () => {
+          setActiveToolButton("fill");
+        });
+
+        brushSize.addEventListener("input", () => {
+          const newSize = brushSize.value;
+          brushSizeValue.textContent = newSize;
+          ctx.lineWidth = newSize;
+        });
+
+        opacitySlider.addEventListener("input", () => {
+          const newOpacity = opacitySlider.value / 100;
+          opacityValue.textContent = `${opacitySlider.value}%`;
+          currentAlpha = newOpacity;
+          ctx.globalAlpha = currentAlpha;
+        });
       });
     </script>
   </body>
