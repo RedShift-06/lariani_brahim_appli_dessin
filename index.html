@@ -6,6 +6,7 @@
     <title>Application de Dessin (Canvas)</title>
 
     <style>
+      /* Variables de couleur */
       :root {
         --primary-color: #3498db;
         --secondary-color: #2ecc71;
@@ -15,6 +16,7 @@
         --background-color: #ffffff;
       }
 
+      /* Pour centrer l'ensemble du contenu "flex-direction: column, align-items: center, min-height: 100vh" */
       body {
         font-family: Arial, sans-serif;
         background-color: var(--light-color);
@@ -30,6 +32,8 @@
 
       h1 {
         margin-bottom: 1rem;
+
+        /* Style dégradé effectué en mettant la couleur du texte en transparent et en limitant la bg au lettres */
         background: linear-gradient(
           90deg,
           rgba(68, 207, 186, 1) 0%,
@@ -43,7 +47,9 @@
         font-size: 2.5rem;
       }
 
+      /* Barre d'outils principale */
       .toolbar {
+        /* Gradient de couleur */
         background: linear-gradient(
           90deg,
           rgba(68, 207, 186, 1) 0%,
@@ -54,8 +60,8 @@
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         padding: 0.8rem 1rem;
         margin-bottom: 1rem;
-        display: flex;
-        flex-wrap: wrap;
+        display: flex; /* Organisation des outils horizontalement */
+        flex-wrap: wrap; /* Faire passer à la ligne si l'écran est petit */
         gap: 0.75rem;
         align-items: center;
         justify-content: center;
@@ -75,6 +81,7 @@
         display: none;
       }
 
+      /* Styles pour les icônes (Boutons circulaires) */
       .icon-button {
         background-color: white;
         border: none;
@@ -89,21 +96,25 @@
         height: 45px;
       }
 
+      /* Petit effet au survol */
       .icon-button:hover {
         background-color: rgba(0, 0, 0, 0.05);
       }
 
+      /* Applique la couleur à l'outil sélectioné */
       .icon-button.active {
         background-color: var(--primary-color);
         color: white;
       }
 
+      /* Bloc du sélecteur de couleur */
       #colorPickerContainer {
         position: relative;
         overflow: hidden;
         padding: 0;
       }
 
+      /* Icon du selecteur */
       #colorPickerContainer img {
         width: 100%;
         height: 100%;
@@ -111,6 +122,7 @@
         padding: 4px;
       }
 
+      /* Le selecteur */
       #colorPickerContainer input[type="color"] {
         position: absolute;
         top: 0;
@@ -125,16 +137,18 @@
         opacity: 0.8;
       }
 
+      /* Conteneur pour positionner le pop-up du sélecteur par rapport au bouton d'icône */
       .range-popup {
         position: relative;
       }
 
+      /* Pour l'instant le sélecteur est caché */
       .range-display {
         display: none;
         position: absolute;
         top: 100%;
         left: 50%;
-        transform: translateX(-50%);
+        transform: translateX(-50%); /* Pour mettre le selecteur au milieu */
         align-items: center;
         gap: 5px;
         background-color: var(--background-color);
@@ -142,8 +156,9 @@
         padding: 0.5rem 0.8rem;
         border-radius: 5px;
         font-size: 0.9rem;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Petit effet 3D */
         min-width: 120px;
+        /* Animation d'apparition */
         animation: fadeIn 0.15s ease-out;
       }
 
@@ -158,10 +173,12 @@
         }
       }
 
+      /* Cette règle est jérée par le JS et permet l'affichage du sélecteur */
       .range-popup.open .range-display {
         display: flex;
       }
 
+      /* Définit l'apparence de la piste du sélecteur */
       .range-display input[type="range"] {
         width: 80px;
         margin: 0;
@@ -170,14 +187,17 @@
         border-radius: 5px;
       }
 
+      /* Une main ouverte en tant que curseur lors du survol */
       .range-display input[type="range"]:hover {
         cursor: grab;
       }
 
+      /* Une main fermée en tant que curseur lors de la modification */
       .range-display input[type="range"]:active {
         cursor: grabbing;
       }
 
+      /* Boutons d'action */
       .action-button {
         background-color: var(--primary-color);
         color: white;
@@ -197,17 +217,20 @@
 
       .action-button img {
         height: 20px;
-        filter: invert(100%);
+        filter: invert(
+          100%
+        ); /* Faire en sorte que les images sont blanches (elles étaient noires au début) */
       }
 
+      /* Petit effet lors du survol */
       .action-button:hover {
         transform: translateY(-2px);
       }
 
+      /* Couleur des bouttons d'action */
       #clearButton {
         background-color: var(--danger-color);
       }
-
       #clearButton:hover {
         background-color: #ae2727;
       }
@@ -215,29 +238,32 @@
       #saveButton {
         background-color: var(--secondary-color);
       }
-
       #saveButton:hover {
         background-color: rgb(15, 139, 15);
       }
 
+      /* Le pseudo-élément (::before) utilisé pour afficher le tooltip (bulle d'aide) en utilisant la valeur de l'attribut data-tooltip (content)
+      De même, ::before n'est utilisable qu'avec content qui definit le texte ou image ou autre à insérer */
       .icon-button::before {
-        content: attr(data-tooltip);
+        content: attr(data-tooltip); /* Récupération du texte */
         position: absolute;
-        bottom: 120%;
+        bottom: 120%; /* Apparition au dessus de l'icone */
         background-color: var(--dark-color);
         color: white;
         padding: 0.4rem 0.6rem;
         border-radius: 4px;
         font-size: 0.8rem;
-        white-space: nowrap;
-        opacity: 0;
-        pointer-events: none;
+        white-space: nowrap; /* Pour ne pas revenir à la ligne */
+        opacity: 0; /* Le tooltip est caché pour l'instant */
+        pointer-events: none; /* Empêche le survol du tooltip */
       }
 
+      /* L'affichage du tooltip au survol */
       .icon-button:hover::before {
         opacity: 1;
       }
 
+      /* Le Canvas */
       canvas {
         border: 2px solid var(--dark-color);
         border-radius: 8px;
@@ -245,6 +271,7 @@
         cursor: crosshair;
       }
 
+      /* Conteneur des raccourcis */
       .shortcuts {
         margin-top: 1rem;
         font-size: 0.9rem;
@@ -252,31 +279,41 @@
         text-align: center;
       }
 
+      /* Les icones */
       img {
         width: auto;
         height: 25px;
       }
 
+      /* Mettre les icones en blanc pour les boutons actifs */
       .icon-button.active img {
         filter: invert(100%);
       }
 
+      /* Exclure le sélecteur de couleur */
       #colorPickerContainer.active img {
         filter: none;
       }
 
+      /* --- Styles des modals de confirmation --- */
       .modal-overlay {
-        display: none;
-        position: fixed;
+        display: none; /* Masqué pour l'instant */
+        position: fixed; /* Couvre tout l'écran */
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.6);
+        background-color: rgba(
+          0,
+          0,
+          0,
+          0.6
+        ); /* Crée l'effet de fond semitransparent derrière le modal */
         justify-content: center;
         align-items: center;
       }
 
+      /* Contenu du modal */
       .modal-content {
         background-color: var(--background-color);
         padding: 2rem;
@@ -284,7 +321,7 @@
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         text-align: center;
         max-width: 400px;
-        animation: modalAppear 0.3s ease-out;
+        animation: modalAppear 0.3s ease-out; /* Annimation de l'apparition */
       }
 
       @keyframes modalAppear {
@@ -298,6 +335,7 @@
         }
       }
 
+      /* Simple mise en page des éléments du modal */
       .modal-content h3 {
         margin-top: 0;
         color: var(--danger-color);
@@ -322,7 +360,6 @@
         background-color: var(--danger-color);
         color: white;
       }
-
       #confirmClear:hover {
         background-color: #c0392b;
       }
@@ -332,7 +369,6 @@
         color: var(--dark-color);
         border: 1px solid #ccc;
       }
-
       #cancelClear:hover {
         background-color: #ddd;
       }
@@ -341,16 +377,25 @@
   <body>
     <h1>Application de Dessin</h1>
 
+    <!-- Conteneur principal des outils -->
     <div class="toolbar">
+      <!-- Le color picker est un groupe à lui seul -->
       <div class="tool-group">
         <div id="colorPickerContainer" class="icon-button">
+          <!-- Boutton de selection -->
           <img src="icons/color-wheel.png" alt="Couleur" />
+          <!-- Le selecteur -->
           <input type="color" id="colorPicker" value="#000000" />
         </div>
       </div>
+      َََ
 
+      <!-- Conteneur des outils de taille/opacité -->
       <div class="tool-group">
+        <!-- Conteneur de la taille -->
         <div id="sizeRangePopup" class="range-popup">
+          <!-- Boutton du selecteur
+                Aussi data-tooltip est un attribut personnalisé utilisé par le CSS pour afficher le tooltip (petit texte d'aide au survol) -->
           <button
             id="sizeButton"
             class="icon-button"
@@ -358,16 +403,20 @@
           >
             <img src="icons/size.png" alt="size" />
           </button>
+          <!-- Le selecteur -->
           <div class="range-display" id="sizeRangeDisplay">
             <input type="range" id="brushSize" min="1" max="50" value="5" />
             <span id="brushSizeValue">5</span>
           </div>
         </div>
 
+        <!-- Conteneur de l'opacité -->
         <div id="opacityRangePopup" class="range-popup">
+          <!-- Boutton du selecteur -->
           <button id="opacityButton" class="icon-button" data-tooltip="Opacité">
             <img src="icons/opacity.png" alt="opacity" />
           </button>
+          <!-- Le selecteur -->
           <div class="range-display" id="opacityRangeDisplay">
             <input
               type="range"
@@ -381,6 +430,7 @@
         </div>
       </div>
 
+      <!-- Conteneur des outils de dessin -->
       <div class="tool-group">
         <button class="icon-button" id="brushButton" data-tooltip="Pinceau (B)">
           <img src="icons/paint-brush.png" alt="paint brush" />
@@ -397,33 +447,39 @@
         </button>
       </div>
 
+      <!-- Conteneur des bouttons à actions -->
       <div class="tool-group">
         <button
           class="action-button"
           id="clearButton"
           data-tooltip="Effacer tout (C)"
         >
-          <img src="icons/trash-can.png" alt="delete" /> Effacer
+          <img src="icons/trash-can.png" alt="delete" />
+          Effacer
         </button>
         <button
           class="action-button"
           id="saveButton"
           data-tooltip="Sauvegarder (S)"
         >
-          <img src="icons/download.png" alt="save as" /> Sauvegarder
+          <img src="icons/download.png" alt="save as" />
+          Sauvegarder
         </button>
       </div>
     </div>
 
+    <!-- C'est la zone sur laquelle le JavaScript peut dessiner. -->
     <canvas id="drawingCanvas" width="800" height="600"></canvas>
 
+    <!-- Conteneur des raccourcis -->
     <div class="shortcuts">
       Raccourcis : <b>B</b> = Pinceau, <b>E</b> = Gomme, <b>F</b> = Remplir,
-      <b>C</b> = Effacer, <b>S</b> = Sauvegarder, <b>Esc</b> = Sortir d'une
-      boite de dialogue
+      <b>C</b> = Effacer, <b>S</b> = Sauvegarder, <b>Esc</b> = Sortir d'une boite de dialogue
     </div>
 
+    <!-- Le modal (boite de dialogue) de la suppression -->
     <div id="clearModal" class="modal-overlay">
+      <!-- Contenu du modal -->
       <div class="modal-content">
         <h3>Confirmer l'effacement</h3>
         <p>
@@ -437,7 +493,9 @@
       </div>
     </div>
 
+    <!-- Le modal (boite de dialogue) de la sauvegarde -->
     <div id="saveModal" class="modal-overlay">
+      <!-- Contenu du modal -->
       <div class="modal-content">
         <h3 style="color: var(--secondary-color)">Sauvegarde effectuée</h3>
         <p>
@@ -462,145 +520,183 @@
 
     <script>
       window.addEventListener("DOMContentLoaded", () => {
+        // Attache un écouteur d'événement qui exécute le code uniquement après le chargement complet de la page HTML
+
+        // Récupération des éléments HTML
         const canvas = document.getElementById("drawingCanvas");
-        const ctx = canvas.getContext("2d");
+        const ctx = canvas.getContext("2d"); // Récupère le contexte de dessin 2D (pour utiliser fillRect, strokeStyle, lineWidth)
+
         const colorPicker = document.getElementById("colorPicker");
         const brushSize = document.getElementById("brushSize");
         const brushSizeValue = document.getElementById("brushSizeValue");
         const opacitySlider = document.getElementById("opacitySlider");
         const opacityValue = document.getElementById("opacityValue");
+
         const brushButton = document.getElementById("brushButton");
         const eraserButton = document.getElementById("eraserButton");
         const fillButton = document.getElementById("fillButton");
         const clearButton = document.getElementById("clearButton");
         const saveButton = document.getElementById("saveButton");
+
         const sizeButton = document.getElementById("sizeButton");
         const sizeRangePopup = document.getElementById("sizeRangePopup");
         const opacityButton = document.getElementById("opacityButton");
         const opacityRangePopup = document.getElementById("opacityRangePopup");
+
         const clearModal = document.getElementById("clearModal");
         const confirmClearButton = document.getElementById("confirmClear");
         const cancelClearButton = document.getElementById("cancelClear");
         const saveModal = document.getElementById("saveModal");
         const closeSaveModalButton = document.getElementById("closeSaveModal");
 
-        let isSaving = false;
-        let isDrawing = false;
-        let currentTool = "brush";
-        let lastX = 0;
-        let lastY = 0;
-        let currentColor = "#000000";
-        let currentAlpha = 1.0;
+        let isSaving = false; // Suivre si une sauvegarde est en cours (pour éviter les clics multiples)
 
-        brushButton.classList.add("active");
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.strokeStyle = currentColor;
-        ctx.lineWidth = 5;
-        ctx.lineCap = "round";
-        ctx.lineJoin = "round";
-        ctx.globalAlpha = currentAlpha;
+        let isDrawing = false; // Indiquer si le clic de la souris est enfoncé et qu'un dessin doit avoir lieu
+        let currentTool = "brush"; // Stocker l'outil actif ('brush', 'eraser', 'fill')
+        let lastX = 0; // X de la dernière position de la souris
+        let lastY = 0; // Y
+        let currentColor = "#000000"; // Couleur du trait (noir par défaut)
+        let currentAlpha = 1.0; // Opacité (1.0 = 100% par défaut)
 
-        function getMousePos(e) {
-          const rect = canvas.getBoundingClientRect();
-          return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-        }
+        // Initialisation du Canvas et des paramètres par défaut
+        brushButton.classList.add("active"); // Active visuellement le bouton Pinceau par défaut
+        ctx.fillStyle = "white"; // Définit la couleur de remplissage sur blanc
+        ctx.fillRect(0, 0, canvas.width, canvas.height); // Remplit tout le canvas en blanc (pour avoir un fond)
+        ctx.strokeStyle = currentColor; // Définit la couleur du trait du contexte 2D sur la couleur actuelle (noir par defaut)
+        ctx.lineWidth = 5; // Définit l'épaisseur du trait par défaut à 5 pixels
+        ctx.lineCap = "round"; // Assure que les extrémités des lignes sont arrondies
+        ctx.lineJoin = "round"; // Assure que les coins des lignes sont arrondis
+        ctx.globalAlpha = currentAlpha; // Définit l'opacité globale du contexte 2D
 
-        function startDrawing(e) {
-          if (currentTool === "brush" || currentTool === "eraser") {
-            isDrawing = true;
-            const pos = getMousePos(e);
-            [lastX, lastY] = [pos.x, pos.y];
-            drawPoint(pos.x, pos.y);
-          }
-        }
+        // --- Fonctions de l'Application ---
 
-        function draw(e) {
-          if (!isDrawing) return;
-          const pos = getMousePos(e);
-          const dist = Math.sqrt(
-            Math.pow(pos.x - lastX, 2) + Math.pow(pos.y - lastY, 2)
-          );
-          if (dist > 1) {
-            const segments = Math.ceil(dist / 1);
-            for (let i = 0; i < segments; i++) {
-              const x = lastX + ((pos.x - lastX) * i) / segments;
-              const y = lastY + ((pos.y - lastY) * i) / segments;
-              drawPoint(x, y);
-            }
-          } else {
-            drawPoint(pos.x, pos.y);
-          }
-          [lastX, lastY] = [pos.x, pos.y];
-        }
-
-        function drawPoint(x, y) {
-          ctx.beginPath();
-          ctx.arc(x, y, ctx.lineWidth / 2, 0, Math.PI * 2);
-          ctx.fillStyle = ctx.strokeStyle;
-          ctx.fill();
-        }
-
-        function stopDrawing() {
-          isDrawing = false;
-          ctx.beginPath();
-        }
-
+        // Fonction pour mettre à jour l'état visuel et les propriétés du contexte lors du changement d'outil
         function setActiveToolButton(toolName) {
-          brushButton.classList.remove("active");
+          brushButton.classList.remove("active"); // Désactive visuellement le bouton Pinceau
           eraserButton.classList.remove("active");
           fillButton.classList.remove("active");
 
-          sizeRangePopup.classList.remove("open");
-          sizeButton.classList.remove("active");
+          // Fermeture des pop-ups de curseurs pour éviter qu'ils restent ouverts après un changement d'outil principal
+          sizeRangePopup.classList.remove("open"); // Masque le pop-up de taille
+          sizeButton.classList.remove("active"); // Désactive visuellement le bouton de taille
           opacityRangePopup.classList.remove("open");
           opacityButton.classList.remove("active");
 
+          // Active visuellement le bouton correspondant à l'outil sélectionné
           if (toolName === "brush") brushButton.classList.add("active");
           else if (toolName === "eraser") eraserButton.classList.add("active");
           else if (toolName === "fill") fillButton.classList.add("active");
 
-          currentTool = toolName;
+          currentTool = toolName; // Met à jour la variable de l'outil actif
 
+          // Applique les propriétés de dessin spécifiques à l'outil
           if (currentTool === "eraser") {
-            ctx.strokeStyle = "white";
-            ctx.globalAlpha = 1.0;
+            ctx.strokeStyle = "white"; // Définit la couleur du trait sur blanc pour simuler la gomme
+            ctx.globalAlpha = 1.0; // Force l'opacité à 100% pour la gomme
           } else {
-            ctx.strokeStyle = currentColor;
-            ctx.globalAlpha = currentAlpha;
+            ctx.strokeStyle = currentColor; // Restaure la couleur du pinceau
+            ctx.globalAlpha = currentAlpha; // Restaure l'opacité actuelle
           }
         }
 
+        // Fonction pour afficher ou masquer les pop-ups des curseurs
         function toggleRangePopup(popupElement, buttonElement) {
+          // Ferme tous les autres pop-ups ouverts (assure qu'un seul est ouvert à la fois)
           [sizeRangePopup, opacityRangePopup].forEach((popup) => {
             if (popup !== popupElement) {
-              popup.classList.remove("open");
+              // Si le pop-up n'est pas celui cliqué
+              popup.classList.remove("open"); // Le masque
               document
                 .getElementById(popup.id.replace("RangePopup", "Button"))
-                .classList.remove("active");
+                .classList.remove("active"); // Désactive son bouton
             }
           });
 
-          popupElement.classList.toggle("open");
-          buttonElement.classList.toggle("active");
+          // Bascule l'état ouvert du pop-up actuel (s'il était fermé, il s'ouvre, et vice-versa)
+          popupElement.classList.toggle("open"); // Ajoute/retire la classe 'open' pour l'affichage
+          buttonElement.classList.toggle("active"); // Ajoute/retire la classe 'active' pour l'état visuel du bouton
         }
 
+        // Logique de Dessin, Remplissage, etc
+
+        // Calcule la position de la souris par rapport au canvas
+        function getMousePos(e) {
+          const rect = canvas.getBoundingClientRect(); // Obtient la position et la taille du canvas dans la fenêtre
+          return { x: e.clientX - rect.left, y: e.clientY - rect.top }; // Retourne les coordonnées X et Y corrigées
+        }
+
+        // Démarre l'action de dessin (lorsque le clic de souris est enfoncé)
+        function startDrawing(e) {
+          if (currentTool === "brush" || currentTool === "eraser") {
+            isDrawing = true; // Indique que le dessin est en cours
+            const pos = getMousePos(e); // Obtient la position actuelle
+            [lastX, lastY] = [pos.x, pos.y]; // Enregistre la position comme point de départ
+
+            drawPoint(pos.x, pos.y); // Dessine un point
+          }
+        }
+
+        // Effectue le dessin lorsque la souris bouge avec le clic enfoncé
+        function draw(e) {
+          if (!isDrawing) return;
+
+          const pos = getMousePos(e); // Obtient la position actuelle de la souris
+
+          // Calcul de la distance entre l'ancien point et le nouveau point (pour l'interpolation)
+          const dist = Math.sqrt(
+            Math.pow(pos.x - lastX, 2) + Math.pow(pos.y - lastY, 2)
+          );
+
+          // Dessine une série de points si le mouvement est grand pour éviter les "trous"
+          if (dist > 1) {
+            const segments = Math.ceil(dist / 1); // Détermine le nombre de segments (approximativement 1 segment par pixel)
+            for (let i = 0; i < segments; i++) {
+              // Boucle pour interpoler les positions entre l'ancien et le nouveau point
+              const x = lastX + ((pos.x - lastX) * i) / segments;
+              const y = lastY + ((pos.y - lastY) * i) / segments;
+              drawPoint(x, y); // Dessine chaque point interpolé
+            }
+          } else {
+            drawPoint(pos.x, pos.y); // Dessine un seul point si le mouvement est très faible
+          }
+
+          [lastX, lastY] = [pos.x, pos.y]; // Met à jour la dernière position enregistrée
+        }
+
+        // Fonction pour dessiner un cercle plein (utilisée pour les points du trait)
+        function drawPoint(x, y) {
+          ctx.beginPath(); // Démarre un nouveau chemin de dessin
+          ctx.arc(x, y, ctx.lineWidth / 2, 0, Math.PI * 2); // Dessine un cercle centré sur (x, y) avec un rayon égal à la moitié du trait
+          ctx.fillStyle = ctx.strokeStyle; // Utilise la couleur du trait comme couleur de remplissage du cercle
+          ctx.fill(); // Remplit le cercle
+        }
+
+        // Arrête le dessin (lorsque le clic de souris est relâché ou sort du canvas)
+        function stopDrawing() {
+          isDrawing = false; // Met fin au mode dessin.
+          ctx.beginPath(); // Démarre un nouveau chemin pour les prochains traits.
+        }
+
+        // Logique de Flood Fill (Remplissage)
         function floodFill(startX, startY, fillColor) {
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const data = imageData.data;
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height); // Lit toutes les données de pixels du canvas
+          const data = imageData.data; // Référence au tableau brut des données [R, G, B, A, R, G, B, A, ...]
           const width = canvas.width;
           const height = canvas.height;
 
+          // Convertit la couleur de remplissage hexadécimale en composants R, G, B numériques
           const fillR = parseInt(fillColor.substring(1, 3), 16);
           const fillG = parseInt(fillColor.substring(3, 5), 16);
           const fillB = parseInt(fillColor.substring(5, 7), 16);
 
-          const getPixelIndex = (x, y) => (y * width + x) * 4;
+          const getPixelIndex = (x, y) => (y * width + x) * 4; // Fonction pour calculer l'index de départ d'un pixel (R) dans le tableau 'data'
           const getPixelColor = (x, y) => {
+            // Fonction pour lire les composants [R, G, B, A] d'un pixel
             const i = getPixelIndex(x, y);
             return [data[i], data[i + 1], data[i + 2], data[i + 3]];
           };
           const setPixelColor = (x, y, r, g, b, a) => {
+            // Fonction pour écrire les composants [R, G, B, A] d'un pixel
             const i = getPixelIndex(x, y);
             data[i] = r;
             data[i + 1] = g;
@@ -608,106 +704,246 @@
             data[i + 3] = a;
           };
 
-          const startPixelColor = getPixelColor(startX, startY);
+          const startPixelColor = getPixelColor(startX, startY); // Récupère la couleur du pixel sur lequel l'utilisateur a cliqué
 
+          // Vérifie si la couleur de départ est la même que la couleur de remplissage (pour éviter de tout recalculer inutilement)
           if (
             startPixelColor[0] === fillR &&
             startPixelColor[1] === fillG &&
             startPixelColor[2] === fillB &&
             startPixelColor[3] === 255
           ) {
-            return;
+            return; // Sort de la fonction si les couleurs sont identiques
           }
 
-          const stack = [[startX, startY]];
+          const stack = [[startX, startY]]; // Initialise la pile (stack) avec le point de départ
+
           while (stack.length) {
-            const [x, y] = stack.pop();
-            if (x < 0 || x >= width || y < 0 || y >= height) continue;
-            const currentPixel = getPixelColor(x, y);
+            // Boucle tant qu'il y a des pixels à traiter dans la pile
+            const [x, y] = stack.pop(); // Récupère les coordonnées du pixel le plus récent de la pile
+
+            if (x < 0 || x >= width || y < 0 || y >= height) continue; // Ignore le code en dessous si le pixel est en dehors des limites du canvas
+
+            const currentPixel = getPixelColor(x, y); // Récupère la couleur du pixel actuel
+
+            // Vérifie si le pixel actuel a la même couleur que le pixel de départ (la zone à remplir)
             if (
               currentPixel[0] === startPixelColor[0] &&
               currentPixel[1] === startPixelColor[1] &&
               currentPixel[2] === startPixelColor[2] &&
               currentPixel[3] === startPixelColor[3]
             ) {
-              setPixelColor(x, y, fillR, fillG, fillB, 255);
+              setPixelColor(x, y, fillR, fillG, fillB, 255); // Change la couleur du pixel pour la couleur de remplissage (alpha 255 = opaque)
+
+              // Ajoute les 4 voisins du pixel à la pile pour qu'ils soient traités ensuite (la logique de remplissage)
               stack.push([x + 1, y]);
               stack.push([x - 1, y]);
               stack.push([x, y + 1]);
               stack.push([x, y - 1]);
             }
           }
-
-          ctx.putImageData(imageData, 0, 0);
+          ctx.putImageData(imageData, 0, 0); // Écrit les données de pixels modifiées sur le canvas, affichant le remplissage
         }
 
+        // Fonction pour effacer le contenu du canvas
         function doClearCanvas() {
-          const originalAlpha = ctx.globalAlpha;
+          const originalAlpha = ctx.globalAlpha; // Stocke l'opacité actuelle pour la restaurer
           ctx.globalAlpha = 1.0;
           ctx.fillStyle = "white";
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.beginPath();
-          ctx.globalAlpha = originalAlpha;
+          ctx.fillRect(0, 0, canvas.width, canvas.height); // Remplit le canvas en blanc
+          ctx.beginPath(); // Réinitialise le chemin
+
+          ctx.globalAlpha = originalAlpha; // Restaure l'opacité d'origine pour les prochains traits de pinceau
+
+          clearModal.style.display = "none"; // Masque le modal de confirmation après l'effacement
         }
 
+        // Fonction pour afficher le modal de confirmation d'effacement
+        function showClearConfirmation() {
+          clearModal.style.display = "flex"; // Affiche le modal
+        }
+
+        // Fonction pour déclencher le téléchargement du dessin
         function saveDrawing() {
-          const dataURL = canvas.toDataURL("image/png");
-          const a = document.createElement("a");
-          a.download = "mon-dessin.png";
-          a.href = dataURL;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
+          const dataURL = canvas.toDataURL("image/png"); // Convertit le contenu du canvas en URL de données PNG
+          const a = document.createElement("a"); // Crée un élément de lien temporaire (<a>)
+
+          a.download = "mon-dessin.png"; // Définit le nom du fichier à télécharger
+          a.href = dataURL; // Définit le lien de téléchargement sur l'URL de données PNG
+
+          document.body.appendChild(a); // Ajoute le lien au corps du document
+          a.click(); // Simule un clic sur le lien pour déclencher le téléchargement
+          document.body.removeChild(a); // Supprime le lien temporaire
+
+          saveModal.style.display = "flex"; // Affiche le modal de confirmation de sauvegarde
         }
 
-        canvas.addEventListener("mousedown", startDrawing);
-        canvas.addEventListener("mousemove", draw);
-        canvas.addEventListener("mouseup", stopDrawing);
-        canvas.addEventListener("mouseout", stopDrawing);
+        // Fonction pour gérer la désactivation et la confirmation de la sauvegarde
+        function handleSave() {
+          if (isSaving) return; // Si une sauvegarde est déjà en cours, ignore le clic
 
+          isSaving = true; // Définit l'état à "en cours" (pour prévenir le spam-clic)
+          saveButton.disabled = true; // Désactive le bouton Sauvegarder dans l'interface
+
+          saveDrawing(); // Déclenche le téléchargement
+        }
+
+        // Fonction de réactivation du bouton de sauvegarde
+        function resetSaveState() {
+          isSaving = false;
+          saveButton.disabled = false;
+          saveModal.style.display = "none"; // Masque le modal de sauvegarde
+        }
+
+        // Vérifie si un modal est ouvert
+        function isModalOpen() {
+          return (
+            clearModal.style.display === "flex" ||
+            saveModal.style.display === "flex"
+          );
+        }
+
+        //  Event listeners (écouteurs d'événements)
+
+        // Pour le bouton de taille
         sizeButton.addEventListener("click", () => {
-          toggleRangePopup(sizeRangePopup, sizeButton);
+          toggleRangePopup(sizeRangePopup, sizeButton); // Ouvre/ferme le pop-up de taille
         });
 
+        // Pour le bouton d'opacité
         opacityButton.addEventListener("click", () => {
           toggleRangePopup(opacityRangePopup, opacityButton);
         });
 
-        brushButton.addEventListener("click", () => {
-          setActiveToolButton("brush");
-        });
-        eraserButton.addEventListener("click", () => {
-          setActiveToolButton("eraser");
-        });
-        fillButton.addEventListener("click", () => {
-          setActiveToolButton("fill");
+        // Écouteur global de clic (pour gérer la fermeture des modals au clic sur l'arrière-plan)
+        document.addEventListener("click", (e) => {
+          if (e.target === clearModal) {
+            // Si le clic cible la zone d'arrière-plan de le modal d'effacement
+            clearModal.style.display = "none";
+          }
+
+          if (e.target === saveModal) {
+            // Si le clic cible la zone d'arrière-plan de le modal de sauvegarde
+            resetSaveState();
+          }
         });
 
-        brushSize.addEventListener("input", () => {
-          const newSize = brushSize.value;
-          brushSizeValue.textContent = newSize;
-          ctx.lineWidth = newSize;
-        });
-
-        opacitySlider.addEventListener("input", () => {
-          const newOpacity = opacitySlider.value / 100;
-          opacityValue.textContent = `${opacitySlider.value}%`;
-          currentAlpha = newOpacity;
-          ctx.globalAlpha = currentAlpha;
-        });
-
-        clearButton.addEventListener("click", () => {
-          doClearCanvas();
-        });
-
-        saveButton.addEventListener("click", () => {
-          saveDrawing();
-        });
-
-        canvas.addEventListener("click", (e) => {
+        // Interactions avec le Canvas
+        canvas.addEventListener("mousedown", (e) => {
           if (currentTool === "fill") {
             const pos = getMousePos(e);
-            floodFill(pos.x, pos.y, currentColor);
+            floodFill(Math.floor(pos.x), Math.floor(pos.y), currentColor); // Déclenche l'algorithme de remplissage
+          } else {
+            startDrawing(e); // Sinon, démarre le dessin au pinceau/gomme
+          }
+        });
+        canvas.addEventListener("mousemove", draw); // Déclenche la fonction 'draw' lorsque la souris bouge
+        canvas.addEventListener("mouseup", stopDrawing); // Arrête le dessin lorsque le clic est relâché
+        canvas.addEventListener("mouseout", stopDrawing); // Arrête le dessin lorsque la souris quitte le canvas
+
+        // Événements du sélecteur de couleur
+        colorPicker.addEventListener("input", (e) => {
+          currentColor = e.target.value; // Met à jour la couleur actuelle avec la nouvelle valeur
+          if (currentTool === "brush") {
+            ctx.strokeStyle = currentColor; // Applique la nouvelle couleur au trait si l'outil est Pinceau
+          }
+        });
+
+        // L'état visuel du conteneur du sélecteur de couleur (au focus/blur)
+        colorPicker.addEventListener("focus", () => {
+          document
+            .getElementById("colorPickerContainer")
+            .classList.add("active"); // Ajoute la classe 'active' pour mettre en évidence
+        });
+        colorPicker.addEventListener("blur", () => {
+          document
+            .getElementById("colorPickerContainer")
+            .classList.remove("active"); // Retire la classe 'active'
+        });
+
+        // Événements du curseur de taille
+        brushSize.addEventListener("input", (e) => {
+          ctx.lineWidth = e.target.value; // Met à jour l'épaisseur du trait dans le contexte 2D
+          brushSizeValue.textContent = e.target.value; // Met à jour l'affichage numérique de la taille
+        });
+
+        // Événements du curseur d'opacité
+        opacitySlider.addEventListener("input", (e) => {
+          currentAlpha = e.target.value / 100;
+          opacityValue.textContent = e.target.value + "%";
+
+          if (currentTool !== "eraser") {
+            ctx.globalAlpha = currentAlpha; // Applique la nouvelle opacité au contexte 2D
+          }
+        });
+
+        // Événements des boutons d'outils
+        brushButton.addEventListener("click", () =>
+          setActiveToolButton("brush")
+        );
+        eraserButton.addEventListener("click", () =>
+          setActiveToolButton("eraser")
+        );
+        fillButton.addEventListener("click", () => setActiveToolButton("fill"));
+
+        // Événements des boutons d'action
+        clearButton.addEventListener("click", showClearConfirmation); // Ouvre le modal de confirmation d'effacement
+        confirmClearButton.addEventListener("click", doClearCanvas); // Confirme et exécute l'effacement
+        cancelClearButton.addEventListener(
+          "click",
+          () => (clearModal.style.display = "none") // Annule l'effacement et masque le modal
+        );
+
+        closeSaveModalButton.addEventListener("click", resetSaveState); // Ferme le modal de sauvegarde et réinitialise l'état
+
+        saveButton.addEventListener("click", handleSave); // Déclenche la gestion de la sauvegarde
+
+        // Gestion des raccourcis clavier
+        window.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            if (clearModal.style.display === "flex") {
+              // Si le modal d'effacement est ouvert, le fermer
+              clearModal.style.display = "none";
+              return;
+            }
+            if (saveModal.style.display === "flex") {
+              // Si le modal de sauvegarde est ouvert, le fermer et réinitialiser l'état
+              resetSaveState();
+              return;
+            }
+          }
+
+          if (isModalOpen()) {
+            // Si un modal est ouvert, coupe les raccourcis
+            if (e.key === "s" || e.key === "S") {
+              e.preventDefault(); // Empêche la sauvegarde
+            }
+            return; // Ignore le switch
+          }
+
+          // Exécute l'action correspondant au raccourci clavier
+          switch (e.key) {
+            case "b":
+            case "B":
+              setActiveToolButton("brush");
+              break;
+            case "e":
+            case "E":
+              setActiveToolButton("eraser");
+              break;
+            case "f":
+            case "F":
+              setActiveToolButton("fill");
+              break;
+            case "c":
+            case "C":
+              showClearConfirmation();
+              break;
+            case "s":
+            case "S":
+              e.preventDefault(); // Empêche le comportement par défaut du navigateur
+              handleSave(); // Sauvegarder
+              break;
           }
         });
       });
